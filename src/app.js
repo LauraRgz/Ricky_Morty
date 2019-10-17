@@ -66,16 +66,18 @@ const runApp = data => {
               planet: character.location.name
             }
           });
+        },
+
+        planets:(parent, args, ctx, info) => {
+          let array = [];
+          data.forEach((element,i) => {
+            array.push(data[i].location.name);
+          })
+          let result = array.filter((value, actualIndex, arr)=> arr.indexOf(value)===actualIndex);
+          return result;
         }
-      },
-      planets:() => {
-        let array = [];
-        data.array.forEach((element,i) => {
-          array.push(data[i].location.name);
-        })
-        let result = array.filter((value, actualIndex, arr)=> arr.indexOf(value)===actualIindex);
-        return result;
       }
+
     }
   const server = new GraphQLServer({typeDefs, resolvers});
   server.start();
