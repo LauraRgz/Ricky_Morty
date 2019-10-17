@@ -19,7 +19,8 @@ const runApp = data => {
     }
     type Query{
       character(id: Int!): Character
-      characters(page: Int!, pageSize: Int!): [Character]
+      characters(name: String, status: String, planet: String, page: Int, pageSize: Int): [Character]!
+      planets: [String]
     }
   `
   const resolvers = {
@@ -37,13 +38,27 @@ const runApp = data => {
         }else return null;
 
       },
+
       characters: (parent, args, ctx, info) =>{
         const pagina = args.page || 1;
         const paginaSize = args.pageSize || 20;
         const inicio =((pagina-1)* paginaSize);
         const fin = (pagina*paginaSize);
-        const array = data.slice(inicio, fin);
-          return array.map(character => {
+        let arrayResults = data.slice();
+
+        if(args.name){
+          arrayResults = arrayResults.filter(obj => obj.name.includes(args.name));
+        }
+        if(args.status){
+          arrayResults = arrayResults.filter(obj => obj.status.includes(args.status));
+        }
+        if(args.planetas){
+          arrayResults = arrayResults.filter(obj => obj.location.name.includes(args.planetas));
+        }
+        
+          return arrayResults
+            .slice(inicio, fin)
+            .map(character => {
             return {
               id: character.id,
               name: character.name,
@@ -52,14 +67,14 @@ const runApp = data => {
             }
           });
         }
-        // if(result){
-        //   return {
-        //     id: result.id,
-        //     name: result.name,
-        //     status: result.status,
-        //     planet: result.location.name
-        //   }
-        // }
+      },
+      planets:() => {
+        let array = [];
+        data.array.forEach((element,i) => {
+          array.push(data[i].location.name);
+        })
+        let result = array.filter((value, actualIndex, arr)=> arr.indexOf(value)===actualIindex);
+        return result;
       }
     }
   const server = new GraphQLServer({typeDefs, resolvers});
