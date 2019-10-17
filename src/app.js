@@ -10,10 +10,39 @@ const url = 'https://rickandmortyapi.com/api/character/';
  */
 const runApp = data => {
   //Resolvers y typedefs aquí
+  const typeDefs=`
+    type Character{
+      id: Int!
+      name: String
+      status: String
+      planet: String
+    }
+    type Query{
+      character(id: Int!): Character 
+    }
+  `
+  const resolvers = {
+    Query:{
+      character: (parent, args, ctx, info) => {
+        const result = data.find(obj => obj.id === args.id);
 
-  data.forEach(element => {
-    console.log(`${element.id}: ${element.name}`);
-  });
+        if(result){
+          return {
+            id: result.id,
+            name: result.name,
+            status: result.status,
+            planet: result.location.name
+          }
+        }else return null;
+
+      }
+    }
+  }
+  const server = new GraphQLServer({typeDefs, resolvers});
+  server.start();
+    // data.forEach(element => {
+  //   console.log(`${element.id}: ${element.name}`);
+  // });
 };
 
 // main program
